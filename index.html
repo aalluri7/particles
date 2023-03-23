@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+  <head>
+    <title>Particle Test 1</title>
+    <meta charset="utf-8">
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+
+</body>
+
+<script>
+  const canvas = document.getElementById('canvas');
+const ctx = canvas.getContext('2d');
+const particleArray = [];
+const maxNum = 30000;
+const colorTransform = { r: 0.9, g: 0, b: 0, a: 1 };
+let mouseX = 0;
+let mouseY = 0;
+
+canvas.width = 1000;
+canvas.height = 500;
+
+function init() {
+  for (let i = 0; i < maxNum; i++) {
+    const particle = {
+      x: Math.random() * canvas.width,
+      y: Math.random() * canvas.height,
+      accX: 0,
+      accY: 0,
+      vX: 0,
+      vY: 0,
+    };
+    particleArray.push(particle);
+  }
+
+  loop();
+}
+
+function loop() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.1)';
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  const gravPointX = mouseX;
+  const gravPointY = mouseY;
+
+  particleArray.forEach((particle) => {
+    const diffX = gravPointX - particle.x;
+    const diffY = gravPointY - particle.y;
+    const rad = Math.atan2(diffY, diffX);
+    const grav = 50 / Math.sqrt(diffX * diffX + diffY * diffY);
+    particle.accX = Math.cos(rad) * grav;
+    particle.accY = Math.sin(rad) * grav;
+    particle.vX += particle.accX;
+    particle.vY += particle.accY;
+    particle.x += particle.vX;
+    particle.y += particle.vY;
+    particle.accX *= 0.98;
+    particle.accY *= 0.98;
+    particle.vX *= 0.96;
+    particle.vY *= 0.96;
+    if (particle.x > canvas.width) {
+      particle.x = 0;
+    } else if (particle.x < 0) {
+      particle.x = canvas.width;
+    }
+    if (particle.y > canvas.height) {
+      particle.y = 0;
+    } else if (particle.y < 0) {
+      particle.y = canvas.height;
+    }
+
+    ctx.fillStyle = `rgba(255, 255, 255, 1)`;
+    ctx.fillRect(particle.x, particle.y, 1, 1);
+  });
+
+  ctx.fillStyle = `rgba(255, 255, 255, 0.1)`;
+  ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener('mousemove', (event) => {
+  mouseX = event.clientX;
+  mouseY = event.clientY;
+});
+
+init();
+
+</script>
+</html>
