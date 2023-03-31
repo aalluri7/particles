@@ -1,185 +1,220 @@
 <!DOCTYPE html>
-  <head>
-    <title>Particle Test 1</title>
-    <meta charset="utf-8">
-  </head>
-  <body>
-    <canvas id="canvas"></canvas>
 
-</body>
-
+<head>
+  <title>Particle Thingy</title>
+  <meta charset="utf-8">
+</head>
+  <button id="fullscreen-btn">Full Screen</button>
+<canvas id="canvas"></canvas>
 <script>
   const canvas = document.getElementById('canvas');
- const ctx = canvas.getContext('2d');
- const particleArray = [];
- const maxNum = 30000;
- const colorTransform = {
-   r: 0.9,
-   g: 0,
-   b: 0,
-   a: 1
- };
- let mouseX = 0;
- let mouseY = 0;
+  const fullscreenBtn = document.getElementById('fullscreen-btn');
 
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
- let angle = 0;
+  const ctx = canvas.getContext('2d');
+  const particleArray = [];
+  const maxNum = 30000;
+  const colorTransform = {
+    r: 0.9,
+    g: 0,
+    b: 0,
+    a: 1
+  };
+  let mouseX = 0;
+  let mouseY = 0;
+    let frozenPoint = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  };
 
- let stateId = 0;
- let state = ['random', 'circle','point','frozen']
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  let angle = 0;
 
-
-
-
- function getRandomPoint(mouseX, mouseY, radius) {
-   // Generate random angle in radians
-   const angle = Math.random() * 2 * Math.PI;
-
-   // Calculate random point 'radius' pixels away from mouse position
-   const x = mouseX + radius * Math.cos(angle);
-   const y = mouseY + radius * Math.sin(angle);
-
-   // Return random point as an object
-   return {
-     x,
-     y
-   };
- }
-
- function getCircularPoint(centerX, centerY, radius, angle) {
-   // Calculate x and y coordinates of point on circle
-   const x = centerX + radius * Math.cos(angle);
-   const y = centerY + radius * Math.sin(angle);
-
-   // Return point as an object
-   return {
-     x,
-     y
-   };
- }
+  let stateId = 0;
+  let state = ['random', 'circle', 'point', 'frozen']
 
 
 
- function init() {
-   for (let i = 0; i < maxNum; i++) {
-     const particle = {
-       x: Math.random() * canvas.width,
-       y: Math.random() * canvas.height,
-       accX: 0,
-       accY: 0,
-       vX: 0,
-       vY: 0,
-     };
-     particleArray.push(particle);
-   }
 
-   loop();
- }
- 
- let frozenPoint = {x:window.innerWidth/2,y:window.innerHeight/2};
+  function getRandomPoint(mouseX, mouseY, radius) {
+    // Generate random angle in radians
+    const angle = Math.random() * 2 * Math.PI;
 
- function loop() {
-   ctx.fillStyle = 'black';
-   ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // Calculate random point 'radius' pixels away from mouse position
+    const x = mouseX + radius * Math.cos(angle);
+    const y = mouseY + radius * Math.sin(angle);
 
-   //   const gravPointX = mouseX;
-   //   const gravPointY = mouseY;
-   const mainPoint = frozenPoint || {
-     x: mouseX,
-     y: mouseY
-   }
-   const randomPoint = ()=>getRandomPoint(mainPoint.x, mainPoint.y, 100);
-   const circularPoint = ()=>getCircularPoint(mainPoint.x, mainPoint.y, 70, angle);
-   const mousePoint = ()=>({
-     x: mouseX,
-     y: mouseY
-   })
-   const getFrozenPoint = ()=>{
-   	return frozenPoint;
-   }
+    // Return random point as an object
+    return {
+      x,
+      y
+    };
+  }
 
-   const statePoints = [randomPoint, circularPoint, mousePoint,getFrozenPoint]
-   const point =  statePoints[stateId]();
+  function getCircularPoint(centerX, centerY, radius, angle) {
+    // Calculate x and y coordinates of point on circle
+    const x = centerX + radius * Math.cos(angle);
+    const y = centerY + radius * Math.sin(angle);
 
+    // Return point as an object
+    return {
+      x,
+      y
+    };
+  }
 
-   // Increment angle to create circular motion
-   angle += 0.25;
-   const gravPointX = point.x;
-   const gravPointY = point.y;
+fullscreenBtn.addEventListener('click', (event) => {
+	
+  if (document.fullscreenElement) {
+    // Exit full screen
+    document.exitFullscreen();
+  } else {
+    // Enter full screen
+    canvas.requestFullscreen();
+  }
+  
+  event.stopPropagation();
+});
 
+// Resize canvas to fill the entire window
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+  frozenPoint = {
+    x: window.innerWidth / 2,
+    y: window.innerHeight / 2
+  };
+}
 
-   particleArray.forEach((particle) => {
-     // Define variables to represent repeated numbers
-     const GRAV_CONST = 50;
-     const DECAY_X = 0.98;
-     const DECAY_Y = 0.96;
-     const SIZE = 1;
+// Call resizeCanvas on page load and on window resize
+window.addEventListener('load', resizeCanvas);
+window.addEventListener('resize', resizeCanvas);
 
-     // Calculate difference between particle and gravitational point
-     const diffX = gravPointX - particle.x;
-     const diffY = gravPointY - particle.y;
+  function init() {
+    for (let i = 0; i < maxNum; i++) {
+      const particle = {
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height,
+        accX: 0,
+        accY: 0,
+        vX: 0,
+        vY: 0,
+      };
+      particleArray.push(particle);
+    }
 
-     // Calculate angle and gravitational force
-     const rad = Math.atan2(diffY, diffX);
-     const grav = GRAV_CONST / Math.sqrt(diffX * diffX + diffY * diffY);
-
-     // Update particle's acceleration and velocity
-     particle.accX = Math.cos(rad) * grav;
-     particle.accY = Math.sin(rad) * grav;
-     particle.vX += particle.accX;
-     particle.vY += particle.accY;
-
-     // Update particle's position and velocity
-     particle.x += particle.vX;
-     particle.y += particle.vY;
-
-     // Apply decay to acceleration and velocity
-     particle.accX *= DECAY_X;
-     particle.accY *= DECAY_X;
-     particle.vX *= DECAY_Y;
-     particle.vY *= DECAY_Y;
-
-     // Wrap particle position if it goes offscreen
-     if (particle.x > canvas.width) {
-       particle.x = 0;
-     } else if (particle.x < 0) {
-       particle.x = canvas.width;
-     }
-     if (particle.y > canvas.height) {
-       particle.y = 0;
-     } else if (particle.y < 0) {
-       particle.y = canvas.height;
-     }
-
-     // Draw particle
-     ctx.fillStyle = `white`;
-     ctx.fillRect(particle.x, particle.y, SIZE, SIZE);
-
-   });
-
-   ctx.fillStyle = `rgba(255, 255, 255, 0.1)`;
-   ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-   requestAnimationFrame(loop);
- }
-
- document.addEventListener('mousemove', (event) => {
-   mouseX = event.clientX;
-   mouseY = event.clientY;
- });
- document.addEventListener('click', function(event) {
-   // Code to run when document is clicked
-   console.log('Document clicked at', event.clientX, event.clientY);
-/*    stateId = (stateId + 1) % state.length;
-    */      frozenPoint = frozenPoint?false:{x:mouseX,y:mouseY};
-/*    if (stateId === 3) {
-   frozenPoint = {x:mouseX,y:mouseY};
-   } */
- });
+    loop();
+  }
 
 
- init();
+
+  function loop() {
+    ctx.fillStyle = 'black';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //   const gravPointX = mouseX;
+    //   const gravPointY = mouseY;
+    const mainPoint = frozenPoint || {
+      x: mouseX,
+      y: mouseY
+    }
+    const randomPoint = () => getRandomPoint(mainPoint.x, mainPoint.y, 100);
+    const circularPoint = () => getCircularPoint(mainPoint.x, mainPoint.y, 70, angle);
+    const mousePoint = () => ({
+      x: mouseX,
+      y: mouseY
+    })
+    const getFrozenPoint = () => {
+      return frozenPoint;
+    }
+
+    const statePoints = [randomPoint, circularPoint, mousePoint, getFrozenPoint]
+    const point = statePoints[stateId]();
+
+
+    // Increment angle to create circular motion
+    angle += 0.25;
+    const gravPointX = point.x;
+    const gravPointY = point.y;
+
+
+    particleArray.forEach((particle) => {
+      // Define variables to represent repeated numbers
+      const GRAV_CONST = 50;
+      const DECAY_X = 0.98;
+      const DECAY_Y = 0.96;
+      const SIZE = 1;
+
+      // Calculate difference between particle and gravitational point
+      const diffX = gravPointX - particle.x;
+      const diffY = gravPointY - particle.y;
+
+      // Calculate angle and gravitational force
+      const rad = Math.atan2(diffY, diffX);
+      const grav = GRAV_CONST / Math.sqrt(diffX * diffX + diffY * diffY);
+
+      // Update particle's acceleration and velocity
+      particle.accX = Math.cos(rad) * grav;
+      particle.accY = Math.sin(rad) * grav;
+      particle.vX += particle.accX;
+      particle.vY += particle.accY;
+
+      // Update particle's position and velocity
+      particle.x += particle.vX;
+      particle.y += particle.vY;
+
+      // Apply decay to acceleration and velocity
+      particle.accX *= DECAY_X;
+      particle.accY *= DECAY_X;
+      particle.vX *= DECAY_Y;
+      particle.vY *= DECAY_Y;
+
+      // Wrap particle position if it goes offscreen
+      if (particle.x > canvas.width) {
+        particle.x = 0;
+      } else if (particle.x < 0) {
+        particle.x = canvas.width;
+      }
+      if (particle.y > canvas.height) {
+        particle.y = 0;
+      } else if (particle.y < 0) {
+        particle.y = canvas.height;
+      }
+
+      // Draw particle
+      ctx.fillStyle = `white`;
+      ctx.fillRect(particle.x, particle.y, SIZE, SIZE);
+
+    });
+
+    ctx.fillStyle = `rgba(255, 255, 255, 0.1)`;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    requestAnimationFrame(loop);
+  }
+
+  document.addEventListener('mousemove', (event) => {
+    mouseX = event.clientX;
+    mouseY = event.clientY;
+  });
+  document.addEventListener('click', function(event) {
+    // Code to run when document is clicked
+    console.log('Document clicked at', event.clientX, event.clientY);
+    /*    stateId = (stateId + 1) % state.length;
+     */
+    frozenPoint = frozenPoint ? false : {
+      x: mouseX,
+      y: mouseY
+    };
+    /*    if (stateId === 3) {
+       frozenPoint = {x:mouseX,y:mouseY};
+       } */
+  });
+  
+  
+  
+
+
+  init();
 
 </script>
-</html>
