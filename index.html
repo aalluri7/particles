@@ -4,7 +4,7 @@
   <title>Particle Thingy</title>
   <meta charset="utf-8">
 </head>
-  <button id="fullscreen-btn">Full Screen</button>
+<button id="fullscreen-btn">Full Screen</button>
 <canvas id="canvas"></canvas>
 <script>
   const canvas = document.getElementById('canvas');
@@ -21,7 +21,7 @@
   };
   let mouseX = 0;
   let mouseY = 0;
-    let frozenPoint = {
+  let frozenPoint = {
     x: window.innerWidth / 2,
     y: window.innerHeight / 2
   };
@@ -63,32 +63,32 @@
     };
   }
 
-fullscreenBtn.addEventListener('click', (event) => {
-	
-  if (document.fullscreenElement) {
-    // Exit full screen
-    document.exitFullscreen();
-  } else {
-    // Enter full screen
-    canvas.requestFullscreen();
+  fullscreenBtn.addEventListener('click', (event) => {
+
+    if (document.fullscreenElement) {
+      // Exit full screen
+      document.exitFullscreen();
+    } else {
+      // Enter full screen
+      canvas.requestFullscreen();
+    }
+
+    event.stopPropagation();
+  });
+
+  // Resize canvas to fill the entire window
+  function resizeCanvas() {
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+    frozenPoint = {
+      x: window.innerWidth / 2,
+      y: window.innerHeight / 2
+    };
   }
-  
-  event.stopPropagation();
-});
 
-// Resize canvas to fill the entire window
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-  frozenPoint = {
-    x: window.innerWidth / 2,
-    y: window.innerHeight / 2
-  };
-}
-
-// Call resizeCanvas on page load and on window resize
-window.addEventListener('load', resizeCanvas);
-window.addEventListener('resize', resizeCanvas);
+  // Call resizeCanvas on page load and on window resize
+  window.addEventListener('load', resizeCanvas);
+  window.addEventListener('resize', resizeCanvas);
 
   function init() {
     for (let i = 0; i < maxNum; i++) {
@@ -109,7 +109,7 @@ window.addEventListener('resize', resizeCanvas);
 
 
   function loop() {
-    ctx.fillStyle = 'black';
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
     //   const gravPointX = mouseX;
@@ -210,9 +210,9 @@ window.addEventListener('resize', resizeCanvas);
        frozenPoint = {x:mouseX,y:mouseY};
        } */
   });
-  
-  
-  
+
+
+
 
 
   init();
